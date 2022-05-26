@@ -9,6 +9,8 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
+import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 /// Custom instance of [BlocObserver] which logs
@@ -36,7 +38,11 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
 
   await BlocOverrides.runZoned(
     () async => await runZonedGuarded(
-      () async => runApp(await builder()),
+      () async {
+        final app = await builder();
+        runApp(
+            DevicePreview(enabled: !kReleaseMode, builder: (context) => app));
+      },
       (error, stackTrace) => log(error.toString(), stackTrace: stackTrace),
     ),
     blocObserver: AppBlocObserver(),
